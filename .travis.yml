@@ -1,26 +1,21 @@
-language: php
+sudo: required
 
-php:
-  - 5.4
-  - 5.5
-  - 5.6
+services:
+  - docker
 
 env:
-  - SYMFONY_VERSION='2.3.*' EVENT_STORE_VERSION='v3.0.1'
-  - SYMFONY_VERSION='2.4.*' EVENT_STORE_VERSION='v3.0.1'
-  - SYMFONY_VERSION='2.5.*' EVENT_STORE_VERSION='v3.0.1'
-
+  - SYMFONY_VERSION='2.8.*'
+  - SYMFONY_VERSION='3.0.*'
 
 before_install:
-    - wget http://download.geteventstore.com/binaries/EventStore-OSS-Linux-${EVENT_STORE_VERSION}.tar.gz
-    - tar xf EventStore*.tar.gz
-    - cd EventStore-OSS* && ./clusternode --mem-db 2>&1> eventstore.log &
+    - docker-compose up -d
 
 install:
-    - composer require --no-update symfony/symfony=${SYMFONY_VERSION}
-    - composer install --prefer-source --no-interaction
+    - docker exec -it eventstoreclientbundle_php_1 bash -c "cd /var/www && composer require --no-update symfony/framework-bundle=${SYMFONY_VERSION}"
+    - docker exec -it eventstoreclientbundle_php_1 bash -c "cd /var/www && composer install --prefer-dist --no-interaction"
 
-script: bin/phpunit --coverage-clover=coverage.clover --coverage-text
+script:
+    - docker exec -it eventstoreclientbundle_php_1 bash -c "cd /var/www && bin/phpunit --coverage-clover=coverage.clover --coverage-text"
 
 after_success:
   - wget https://scrutinizer-ci.com/ocular.phar
@@ -28,4 +23,3 @@ after_success:
 
 after_scripts:
   - killall -SIGINT clusternode
-  - cat EventStore*/eventstore.log
