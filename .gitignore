@@ -3,4 +3,5 @@
 /vendor/
 *.swp
 composer.lock
+/ocular.phar
 php-cs-fixer.phar
