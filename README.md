@@ -1,10 +1,44 @@
 EventStore client bundle
 ========================
 
-GetEventStore integration for Symfony 2
+GetEventStore integration for Symfony and Symfony 3
 
-[![Build Status](https://travis-ci.org/dbellettini/eventstore-client-bundle.svg?branch=master)](https://travis-ci.org/dbellettini/eventstore-client-bundle)
-[![Latest Stable Version](https://poser.pugx.org/dbellettini/eventstore-client-bundle/v/stable.svg)](https://packagist.org/packages/dbellettini/eventstore-client-bundle)
-[![Total Downloads](https://poser.pugx.org/dbellettini/eventstore-client-bundle/downloads.svg)](https://packagist.org/packages/dbellettini/eventstore-client-bundle)
-[![Latest Unstable Version](https://poser.pugx.org/dbellettini/eventstore-client-bundle/v/unstable.svg)](https://packagist.org/packages/dbellettini/eventstore-client-bundle)
-[![License](https://poser.pugx.org/dbellettini/eventstore-client-bundle/license.svg)](https://packagist.org/packages/dbellettini/eventstore-client-bundle)
+[![Build Status](https://travis-ci.org/tetsuobe/eventstore-client-bundle.svg?branch=master)](https://travis-ci.org/tetsuobe/eventstore-client-bundle)
+
+# Usage
+
+* via GitHub
+
+```
+"repositories": [
+    {
+        "type": "vcs",
+    	"url": "https://github.com/tetsuobe/eventstore-client-bundle"
+	}
+]
+```
+```
+"require": {
+    "tetsuobe/eventstore-client-bundle": "*"
+}
+```
+
+* via packagist
+```
+composer require tetsuobe/eventstore-client-bundle
+```
+
+### Developing
+Run docker container
+
+```
+docker-compose up -d
+```
+Log into it
+```
+docker exec -it eventstoreclientbundle_php_1 bash
+```
+And run
+```
+composer install
+```
