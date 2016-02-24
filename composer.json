@@ -1,5 +1,5 @@
 {
-    "name": "dbellettini/eventstore-client-bundle",
+    "name": "tetsuobe/eventstore-client-bundle",
     "description": "GetEventStore integration for Symfony 2 and Symfony 3",
     "type": "symfony-bundle",
     "keywords": [
@@ -24,7 +24,7 @@
         }
     ],
     "require": {
-        "symfony/framework-bundle": "2.8.*",
+        "symfony/framework-bundle": "~2.8|~3.0",
         "dbellettini/eventstore-client": "~0.7"
     },
     "require-dev": {
