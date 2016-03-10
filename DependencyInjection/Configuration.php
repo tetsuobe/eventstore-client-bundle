@@ -25,6 +25,12 @@ class Configuration implements ConfigurationInterface
                     ->cannotBeEmpty()
                     ->defaultValue('http://127.0.0.1:2113')
                 ->end()
+                ->scalarNode('user')
+                    ->cannotBeEmpty()
+                ->end()
+                ->scalarNode('password')
+                    ->cannotBeEmpty()
+                ->end()
             ->end();
 
         return $treeBuilder;

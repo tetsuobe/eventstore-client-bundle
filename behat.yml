@@ -1,0 +1,17 @@
+default:
+  formatters:
+    progress: true
+  suites:
+    cli:
+      paths: [ %paths.base%/features ]
+      contexts:
+        - CliContext
+      filters:
+        tags: "@cli"
+  extensions:
+    Behat\Symfony2Extension:
+      kernel:
+        env: test
+        debug: true
+        path: features/fixtures/app/AppKernel.php
+        bootstrap: features/fixtures/app/autoload.php

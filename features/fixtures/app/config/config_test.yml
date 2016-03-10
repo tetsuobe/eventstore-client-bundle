@@ -1,0 +1,10 @@
+imports:
+    - { resource: parameters.yml }
+
+framework:
+    secret:         "%secret%"
+
+event_store_client:
+    base_url: "%eventstore_url%"
+    user: "%eventstore_user%"
+    password: "%eventstore_password%"

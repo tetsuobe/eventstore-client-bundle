@@ -28,5 +28,7 @@ class EventStoreClientExtension extends Extension
 
         $loader->load('services.yml');
         $container->setParameter('event_store_client.base_url', $config['base_url']);
+        $container->setParameter('event_store_client.user', $config['user']);
+        $container->setParameter('event_store_client.password', $config['password']);
     }
 }

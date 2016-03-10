@@ -53,6 +53,8 @@ class EventStoreClientExtensionTest extends TestCase
     {
         $yaml = <<<EOF
 base_url: http://eventstore-fake.com:2113
+user: userlogin
+password: userpass
 EOF;
 
         return (new Parser())->parse($yaml);
