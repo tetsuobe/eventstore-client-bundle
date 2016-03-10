@@ -19,7 +19,7 @@ GetEventStore integration for Symfony and Symfony 3
 ```
 ```
 "require": {
-    "tetsuobe/eventstore-client-bundle": "*"
+    "tetsuobe/eventstore-client-bundle": "dev-master"
 }
 ```
 
@@ -41,4 +41,15 @@ docker exec -it eventstoreclientbundle_php_1 bash
 And run
 ```
 composer install
+```
+
+### Tests
+
+Functional:
+```
+bin/phpunit
+```
+Behavioral:
+```
+bin/behat
 ```
