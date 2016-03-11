@@ -13,5 +13,5 @@ default:
       kernel:
         env: test
         debug: true
-        path: features/fixtures/app/AppKernel.php
-        bootstrap: features/fixtures/app/autoload.php
+        path: fixtures/app/AppKernel.php
+        bootstrap: fixtures/app/autoload.php

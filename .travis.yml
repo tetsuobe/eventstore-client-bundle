@@ -16,6 +16,7 @@ install:
 
 script:
     - docker exec -it eventstoreclientbundle_php_1 bash -c "cd /var/www && bin/phpunit --coverage-clover=coverage.clover --coverage-text"
+    - docker exec -it eventstoreclientbundle_php_1 bash -c "cd /var/www && bin/behat"
 
 after_success:
   - docker exec -it eventstoreclientbundle_php_1 bash -c "cd /var/www && wget https://scrutinizer-ci.com/ocular.phar"
