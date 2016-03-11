@@ -14,6 +14,19 @@ Feature: Creating new projection through command line
     And projection "projectionTestCaseCreate" should be created
 
   @cli
+  Scenario: Create arbitrary projection
+    Given projection "projectionTestCaseCreateFile" does not exist
+    When I run "eventstore:projection:create" command with parameters:
+      | name | projectionTestCaseCreateFile                                                                                         |
+      | --file | ./fixtures/tmp/projection.js |
+    Then the command exit code should be 0
+    And I should see on console:
+    """
+    Success! Projection was created.
+    """
+    And projection "projectionTestCaseCreate" should be created
+
+  @cli
   Scenario: Create arbitrary projection with the name as existing one
     Given projection "projectionTestCaseCreateExists" exists
     When I run "eventstore:projection:create" command with parameters:

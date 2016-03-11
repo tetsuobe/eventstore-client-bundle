@@ -1,5 +1,0 @@
-parameters:
-    secret: $3cr3t
-    eventstore_url: http://127.0.0.1:2113
-    eventstore_user: admin
-    eventstore_password: changeit

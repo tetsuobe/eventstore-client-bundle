@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="./Tests/bootstrap.php" colors="true">
+<phpunit bootstrap="./fixtures/app/autoload.php" colors="true">
     <testsuites>
         <testsuite name="EventStoreClientBundle test suite">
             <directory suffix="Test.php">./Tests</directory>
         </testsuite>
     </testsuites>
 
+    <php>
+        <server name="KERNEL_DIR" value="./fixtures/app" />
+    </php>
+
     <filter>
         <whitelist>
             <directory>./</directory>
             <exclude>
+                <directory>./Command</directory>
+                <directory>./fixtures</directory>
+                <directory>./features</directory>
                 <directory>./Resources</directory>
                 <directory>./Tests</directory>
                 <directory>./vendor</directory>
+                <directory>./tmp</directory>
             </exclude>
         </whitelist>
     </filter>
