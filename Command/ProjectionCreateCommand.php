@@ -18,6 +18,11 @@ class ProjectionCreateCommand extends ContainerAwareCommand
     use ProjectionCommandDictionary;
 
     /**
+     * @var FormatterHelper
+     */
+    protected $formatter;
+
+    /**
      * Configuration
      */
     protected function configure()
@@ -64,15 +69,23 @@ TXT;
         $projection = new Projection(RunMode::CONTINUOUS, $this->name);
         $projection->setBody($this->body);
 
-        $es->writeProjection($projection, $this->force);
+        $this->formatter = $this->getHelper('formatter');
 
-        if ($es->getLastResponse()->getStatusCode() != ResponseCode::HTTP_CREATED) {
-            throw new \Exception($es->getLastResponse()->getReasonPhrase(), $es->getLastResponse()->getStatusCode());
+        try {
+            $es->writeProjection($projection, $this->force);
+        } catch (\Exception $exception) {
+            $output->writeln($this->errorMessage($exception->getMessage()));
+
+            return $exception->getCode();
         }
 
-        /** @var FormatterHelper $formatter */
-        $formatter = $this->getHelper('formatter');
-        $formattedBlock = $formatter->formatBlock('Success! Projection was created.', 'info');
-        $output->writeln($formattedBlock);
+        if ($es->getLastResponse()->getStatusCode() != ResponseCode::HTTP_CREATED) {
+            $output->writeln($this->errorMessage($es->getLastResponse()->getReasonPhrase()));
+
+            return $es->getLastResponse()->getStatusCode();
+        }
+        $output->writeln($this->successMessage('Projection was created.'));
+
+        return $es->getLastResponse()->getStatusCode();
     }
 }

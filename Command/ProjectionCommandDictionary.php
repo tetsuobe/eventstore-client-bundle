@@ -51,4 +51,14 @@ trait ProjectionCommandDictionary
         }
         $this->body = file_get_contents($file);
     }
+
+    protected function errorMessage($message)
+    {
+        return $this->formatter->formatBlock('Error! ' . $message, 'error');
+    }
+
+    protected function successMessage($message)
+    {
+        return $this->formatter->formatBlock('Success! ' . $message, 'info');
+    }
 }
