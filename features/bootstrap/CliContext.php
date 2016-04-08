@@ -56,6 +56,11 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
     private $exitCode = 0;
 
     /**
+     * @var string
+     */
+    private $suffix;
+
+    /**
      * @BeforeScenario
      */
     public function setUp()
@@ -67,6 +72,8 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
         $this->console->add(new ProjectionCreateCommand());
         $this->console->add(new ProjectionUpdateCommand());
         $this->console->add(new ProjectionDeleteCommand());
+
+        $this->suffix = uniqid();
     }
 
     /**
@@ -78,6 +85,9 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
 
         $consoleInput = ['command' => $command->getName()];
         foreach ($table->getRowsHash() as $parameter => $value) {
+            if ($parameter == 'name') {
+                $value = $this->getSuffixedName($value);
+            }
             $consoleInput[$parameter] = $value;
         }
 
@@ -101,6 +111,9 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
 
         $consoleInput = ['command' => $command->getName()];
         foreach ($table->getRowsHash() as $parameter => $value) {
+            if ($parameter == 'name') {
+                $value = $this->getSuffixedName($value);
+            }
             $consoleInput[$parameter] = $value;
         }
 
@@ -153,9 +166,21 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
     public function projectionShouldBeCreated($name)
     {
         /** @var Statistics $projection */
-        $projection = $this->es->readProjection($name);
-        if ($name != $projection->getName()) {
+        $projection = $this->es->readProjection($this->getSuffixedName($name));
+        if ($this->getSuffixedName($name) != $projection->getName()) {
             throw new \Exception("Projection $name was not created");
+        }
+    }
+
+    /**
+     * @Given /^projection "([^"]*)" should be updated/
+     */
+    public function projectionShouldBeUpdated($name)
+    {
+        /** @var Statistics $projection */
+        $projection = $this->es->readProjection($this->getSuffixedName($name));
+        if ($this->getSuffixedName($name) != $projection->getName()) {
+            throw new \Exception("Projection $name was not updated");
         }
     }
 
@@ -164,7 +189,7 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
      */
     public function projectionDoesNotExist($name)
     {
-        $this->es->deleteProjection($name);
+        $this->es->deleteProjection($this->getSuffixedName($name));
     }
 
     /**
@@ -172,11 +197,11 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
      */
     public function projectionExists($name)
     {
-        $projection = new Projection(RunMode::CONTINUOUS, $name);
+        $projection = new Projection(RunMode::CONTINUOUS, $this->getSuffixedName($name));
         $projection->setBody(
             'fromAll().when({$init : function(s,e) {return {count : 0}},$any  : function(s,e) {return {count : s.count +1}}})'
         );
-        $this->es->writeProjection($projection);
+        $this->es->writeProjection($projection, true);
     }
 
     /**
@@ -185,7 +210,7 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
     public function projectionShouldNotExist($name)
     {
         try {
-            $this->es->readProjection($name);
+            $this->es->readProjection($this->getSuffixedName($name));
         } catch (ProjectionNotFoundException $e) {
             $this->output = $e->getMessage();
             return true;
@@ -204,5 +229,18 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
         rewind($stream);
 
         return $stream;
+    }
+
+    /**
+     * @param $name
+     * @return string
+     */
+    private function getSuffixedName($name)
+    {
+        if (!empty($name)) {
+            return $name.$this->suffix;
+        }
+
+        return null;
     }
 }

@@ -18,6 +18,12 @@ class ProjectionUpdateCommand extends ContainerAwareCommand
     use ProjectionCommandDictionary;
 
     /**
+     * @var FormatterHelper
+     */
+    protected $formatter;
+
+
+    /**
      * Configuration
      */
     protected function configure()
@@ -75,16 +81,25 @@ TXT;
         if (!is_null($emit = $input->getOption('emit'))) {
             $projection->setEmit($emit);
         }
+        
+        $this->formatter = $this->getHelper('formatter');
 
-        $es->updateProjection($projection);
+        try {
+            $es->updateProjection($projection);
+        } catch (\Exception $exception) {
+            $output->writeln($this->errorMessage($exception->getMessage()));
 
-        if ($es->getLastResponse()->getStatusCode() != ResponseCode::HTTP_OK) {
-            throw new \Exception($es->getLastResponse()->getReasonPhrase(), $es->getLastResponse()->getStatusCode());
+            return $exception->getCode();
         }
 
-        /** @var FormatterHelper $formatter */
-        $formatter = $this->getHelper('formatter');
-        $formattedBlock = $formatter->formatBlock('Success! Projection was updated.', 'info');
-        $output->writeln($formattedBlock);
+        if ($es->getLastResponse()->getStatusCode() != ResponseCode::HTTP_OK) {
+            $output->writeln($this->errorMessage($es->getLastResponse()->getReasonPhrase()));
+
+            return $es->getLastResponse()->getStatusCode();
+        }
+
+        $output->writeln($this->successMessage('Projection was updated.'));
+
+        return $es->getLastResponse()->getStatusCode();
     }
 }
