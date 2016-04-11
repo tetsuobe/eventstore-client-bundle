@@ -79,7 +79,7 @@ TXT;
             return $exception->getCode();
         }
 
-        if ($es->getLastResponse()->getStatusCode() != ResponseCode::HTTP_CREATED) {
+        if (!in_array($es->getLastResponse()->getStatusCode(), [ResponseCode::HTTP_OK, ResponseCode::HTTP_CREATED])) {
             $output->writeln($this->errorMessage($es->getLastResponse()->getReasonPhrase()));
 
             return $es->getLastResponse()->getStatusCode();
