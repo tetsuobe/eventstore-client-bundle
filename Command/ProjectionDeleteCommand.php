@@ -6,10 +6,12 @@ use EventStore\EventStore;
 use EventStore\Http\ResponseCode;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ProjectionDeleteCommand extends ContainerAwareCommand
 {
@@ -46,7 +48,7 @@ TXT;
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Continue with this action?', false, '/^yes/i');
+        $question = new ConfirmationQuestion('Continue with this action? (yes/no) [no]:', false, '/^yes/i');
 
         if (!$helper->ask($input, $output, $question)) {
             return false;
@@ -55,23 +57,23 @@ TXT;
         /** @var EventStore $es */
         $es = $this->getContainer()->get('event_store_client.event_store');
 
-        $this->formatter = $this->getHelper('formatter');
-
+        $io = new SymfonyStyle($input, $output);
+        
         try {
             $es->deleteProjection($input->getArgument('name'));
         } catch (\Exception $exception) {
-            $output->writeln($this->errorMessage($exception->getMessage()));
+            $io->error($exception->getMessage());
 
             return $exception->getCode();
         }
 
         if ($es->getLastResponse()->getStatusCode() != ResponseCode::HTTP_OK) {
-            $output->writeln($this->errorMessage($es->getLastResponse()->getReasonPhrase()));
+            $io->error($es->getLastResponse()->getReasonPhrase());
 
             return $es->getLastResponse()->getStatusCode();
         }
-        $output->writeln($this->successMessage('Projection was deleted.'));
+        $io->success('Projection was deleted.');
 
-        return $es->getLastResponse()->getStatusCode();
+        return 0;
     }
 }

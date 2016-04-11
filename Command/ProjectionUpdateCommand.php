@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ProjectionUpdateCommand extends ContainerAwareCommand
 {
@@ -68,38 +69,38 @@ TXT;
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getCommandParams($input);
-
-        /** @var EventStore $es */
-        $es = $this->getContainer()->get('event_store_client.event_store');
-
-        /** @var Statistics $statistic */
-        $statistic = $es->readProjection($this->name);
-
-        $projection = new Projection($statistic->getMode(), $statistic->getName());
-        $projection->setBody($this->body);
-        if (!is_null($emit = $input->getOption('emit'))) {
-            $projection->setEmit($emit);
-        }
-        
-        $this->formatter = $this->getHelper('formatter');
+        $io = new SymfonyStyle($input, $output);
 
         try {
+            $this->getCommandParams($input);
+
+            /** @var EventStore $es */
+            $es = $this->getContainer()->get('event_store_client.event_store');
+            
+            /** @var Statistics $statistic */
+            $statistic = $es->readProjection($this->name);
+
+            $projection = new Projection($statistic->getMode(), $statistic->getName());
+            $projection->setBody($this->body);
+            if (!is_null($emit = $input->getOption('emit'))) {
+                $projection->setEmit($emit);
+            }
+
             $es->updateProjection($projection);
         } catch (\Exception $exception) {
-            $output->writeln($this->errorMessage($exception->getMessage()));
+            $io->error($exception->getMessage());
 
             return $exception->getCode();
         }
 
         if ($es->getLastResponse()->getStatusCode() != ResponseCode::HTTP_OK) {
-            $output->writeln($this->errorMessage($es->getLastResponse()->getReasonPhrase()));
+            $io->error($es->getLastResponse()->getReasonPhrase());
 
             return $es->getLastResponse()->getStatusCode();
         }
 
-        $output->writeln($this->successMessage('Projection was updated.'));
+        $io->success('Projection was updated.');
 
-        return $es->getLastResponse()->getStatusCode();
+        return 0;
     }
 }

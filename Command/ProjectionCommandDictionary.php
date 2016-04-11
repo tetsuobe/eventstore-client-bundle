@@ -23,8 +23,8 @@ trait ProjectionCommandDictionary
     {
         $this->name = $input->getArgument('name');
         if (empty($this->name)) {
-            $errorMessage = 'Missing projection <info>name</info>.';
-            throw new \Exception($errorMessage);
+            $errorMessage = 'Missing projection name.';
+            throw new \Exception($errorMessage, 400);
         }
 
         $this->body = $input->getArgument('body');
@@ -42,23 +42,13 @@ trait ProjectionCommandDictionary
     {
         $file = $input->getOption('file');
         if (empty($file)) {
-            $errorMessage = 'Missing projection body, it should be added via <info>body</info> argument or <info>--file</info> option.';
-            throw new \Exception($errorMessage);
+            $errorMessage = 'Missing projection body, it should be added via body argument or --file option.';
+            throw new \Exception($errorMessage, 400);
         }
         if (!file_exists($file)) {
-            $errorMessage = sprintf('Projection file <info>%s</info> does not exists', $file);
-            throw new \Exception($errorMessage);
+            $errorMessage = sprintf('Projection file %s does not exists', $file);
+            throw new \Exception($errorMessage, 404);
         }
         $this->body = file_get_contents($file);
-    }
-
-    protected function errorMessage($message)
-    {
-        return $this->formatter->formatBlock('Error! ' . $message, 'error');
-    }
-
-    protected function successMessage($message)
-    {
-        return $this->formatter->formatBlock('Success! ' . $message, 'info');
     }
 }
