@@ -5,11 +5,7 @@ Feature: Delete projection through command line
     Given projection "projectionTestCaseDelete" exists
     When I run "eventstore:projection:delete" command with parameters and answer "yes":
       | name | projectionTestCaseDelete |
-    Then the command exit code should be 200
-    And I should see on console:
-    """
-    Continue with this action? Success! Projection was deleted.
-    """
+    Then the command exit code should be 0
     And projection "projectionTestCaseDelete" should not exist
 
   @cli
@@ -17,7 +13,3 @@ Feature: Delete projection through command line
     When I run "eventstore:projection:delete" command with parameters and answer "yes":
       | name | projectionTestCaseDeleteNonExist |
     Then the command exit code should be 404
-    And I should see on console:
-    """
-    Continue with this action? Error! Projection not found.
-    """

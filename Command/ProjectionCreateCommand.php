@@ -12,15 +12,11 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ProjectionCreateCommand extends ContainerAwareCommand
 {
     use ProjectionCommandDictionary;
-
-    /**
-     * @var FormatterHelper
-     */
-    protected $formatter;
 
     /**
      * Configuration
@@ -61,31 +57,29 @@ TXT;
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getCommandParams($input);
-
-        /** @var EventStore $es */
-        $es = $this->getContainer()->get('event_store_client.event_store');
-
-        $projection = new Projection(RunMode::CONTINUOUS, $this->name);
-        $projection->setBody($this->body);
-
-        $this->formatter = $this->getHelper('formatter');
-
+        $io = new SymfonyStyle($input, $output);
         try {
+            $this->getCommandParams($input);
+
+            /** @var EventStore $es */
+            $es = $this->getContainer()->get('event_store_client.event_store');
+
+            $projection = new Projection(RunMode::CONTINUOUS, $this->name);
+            $projection->setBody($this->body);
             $es->writeProjection($projection, $this->force);
         } catch (\Exception $exception) {
-            $output->writeln($this->errorMessage($exception->getMessage()));
+            $io->error($exception->getMessage());
 
             return $exception->getCode();
         }
 
         if (!in_array($es->getLastResponse()->getStatusCode(), [ResponseCode::HTTP_OK, ResponseCode::HTTP_CREATED])) {
-            $output->writeln($this->errorMessage($es->getLastResponse()->getReasonPhrase()));
+            $io->error($es->getLastResponse()->getReasonPhrase());
 
             return $es->getLastResponse()->getStatusCode();
         }
-        $output->writeln($this->successMessage('Projection was created.'));
+        $io->success('Projection was created.');
 
-        return $es->getLastResponse()->getStatusCode();
+        return 0;
     }
 }

@@ -15,6 +15,10 @@ use EventStore\Projections\Projection;
 use EventStore\Projections\RunMode;
 use EventStore\Projections\Statistics;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Helper\SymfonyQuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -155,8 +159,8 @@ class CliContext implements Context, KernelAwareContext, SnippetAcceptingContext
      */
     public function iShouldSeeOnConsole(PyStringNode $string)
     {
-        if ((string) $string != $this->output) {
-            throw new \Exception('Command return: '.$this->output);
+        if ((string) str_replace(PHP_EOL, ' ', $string) != str_replace(PHP_EOL, ' ', $this->output)) {
+            throw new \Exception('Command return: '.str_replace(PHP_EOL, ' ', $this->output));
         }
     }
 
